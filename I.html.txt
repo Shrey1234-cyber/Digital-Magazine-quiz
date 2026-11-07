@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class 12 CBSE English Project: Digital Magazines Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        mag: {
+                            dark: '#111111',
+                            muted: '#555555',
+                            border: '#CCCCCC',
+                            light: '#F8F8F8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-border { border: 1px solid #000 !important; }
+            header, footer { position: static !important; }
+        }
+    </style>
+</head>
+<body class="bg-white text-mag-dark font-sans min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
+
+    <!-- Header / Editorial Banner -->
+    <header class="border-b border-mag-dark bg-white sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center text-left">
+            <div>
+                <span class="text-[10px] uppercase tracking-widest text-mag-muted font-bold block">CBSE Class 12 • English Project</span>
+                <h1 class="font-serif text-lg font-bold tracking-tight">Digital Magazines Assessment</h1>
+            </div>
+            <div id="quiz-header-status" class="text-xs font-semibold uppercase tracking-wider text-mag-muted">
+                Q <span id="current-q-num">1</span> / 10
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-2xl w-full mx-auto px-4 py-6 flex-grow flex items-center justify-center">
+
+        <!-- Welcome View -->
+        <div id="view-welcome" class="border border-mag-dark rounded-none p-6 sm:p-8 shadow-sm text-center w-full bg-white">
+            <span class="inline-block border border-mag-dark text-mag-dark text-[10px] font-bold tracking-widest uppercase px-3 py-0.5 mb-3">Assessment Module</span>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold mb-3">Digital Magazines & Publishing</h2>
+            <p class="text-mag-muted text-sm mb-6 leading-relaxed max-w-lg mx-auto">
+                Concise academic evaluation covering layout responsiveness, scrollytelling, EPUB standards, font pairing, interactivity, media ethics, and modern publishing workflows for Class 12 CBSE English.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mb-6 text-left bg-mag-light p-3 border border-mag-border text-xs">
+                <div>📌 <strong>10</strong> Concise MCQs</div>
+                <div>⚡ Instant Auto-Scoring</div>
+                <div>🖨️ Printer-Optimized Layout</div>
+                <div>🔗 Shareable & Mobile-Ready</div>
+            </div>
+            <button onclick="startQuiz()" class="w-full sm:w-auto px-6 py-2.5 bg-mag-dark text-white text-sm font-semibold rounded-none hover:bg-mag-muted transition">
+                Start Quiz →
+            </button>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="view-quiz" class="hidden w-full">
+            <!-- Progress Bar -->
+            <div class="w-full bg-mag-light h-1.5 border border-mag-border mb-4 overflow-hidden">
+                <div id="progress-bar" class="bg-mag-dark h-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="border border-mag-dark p-5 sm:p-6 bg-white shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="question-category" class="text-[10px] uppercase tracking-wider font-bold text-mag-muted">Layout Design</span>
+                    <span class="text-[10px] text-mag-muted font-bold">10% Completed</span>
+                </div>
+                <h3 id="question-text" class="font-serif text-base sm:text-lg font-bold mb-4 leading-snug">Loading question...</h3>
+
+                <!-- Options List -->
+                <div id="options-container" class="space-y-2 mb-6">
+                    <!-- Dynamically injected options -->
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex justify-between items-center pt-3 border-t border-mag-border">
+                    <button id="btn-prev" onclick="prevQuestion()" class="px-4 py-2 text-xs font-semibold border border-mag-dark rounded-none hover:bg-mag-light transition disabled:opacity-30 disabled:cursor-not-allowed">
+                        ← Prev
+                    </button>
+                    <button id="btn-next" onclick="nextQuestion()" class="px-5 py-2 text-xs font-semibold bg-mag-dark text-white rounded-none hover:bg-mag-muted transition">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result View -->
+        <div id="view-result" class="hidden border border-mag-dark p-6 sm:p-8 text-center w-full bg-white shadow-sm">
+            <span class="inline-block border border-mag-dark text-mag-dark text-[10px] font-bold tracking-widest uppercase px-3 py-0.5 mb-3">Evaluation Complete</span>
+            <h2 class="font-serif text-2xl font-bold mb-1">Assessment Summary</h2>
+            <p id="result-subtitle" class="text-mag-muted text-xs mb-6">Digital Magazines & Publishing Proficiency</p>
+
+            <!-- Score Display -->
+            <div class="bg-mag-light border border-mag-border p-4 mb-6 max-w-xs mx-auto">
+                <div class="text-4xl font-serif font-bold text-mag-dark mb-1"><span id="final-score">0</span><span class="text-xl text-mag-muted">/10</span></div>
+                <div id="score-grade" class="text-[11px] font-bold tracking-wide uppercase text-mag-dark">Grade: Outstanding</div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-2 justify-center no-print">
+                <button onclick="restartQuiz()" class="px-5 py-2.5 bg-mag-dark text-white text-xs font-semibold rounded-none hover:bg-mag-muted transition">
+                    Retake Quiz ↺
+                </button>
+                <button onclick="shareQuiz()" class="px-5 py-2.5 border border-mag-dark text-mag-dark text-xs font-semibold rounded-none hover:bg-mag-light transition">
+                    Share Link 🔗
+                </button>
+                <button onclick="window.print()" class="px-5 py-2.5 border border-mag-dark text-mag-dark text-xs font-semibold rounded-none hover:bg-mag-light transition">
+                    Print Result 🖨️
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-mag-border py-3 text-center text-[10px] text-mag-muted bg-white no-print">
+        Class 12 CBSE English Project • Minimalist Print-Optimized Layout
+    </footer>
+
+    <!-- Quiz Logic Script -->
+    <script>
+        const quizData = [
+            {
+                category: "Editorial Design",
+                question: "Which web layout approach automatically adapts grid structures across devices?",
+                options: [
+                    "Fixed-layout pagination",
+                    "Responsive web design",
+                    "Static PDF conversion",
+                    "Monolithic print grid"
+                ],
+                correct: 1
+            },
+            {
+                category: "Scrollytelling",
+                question: "What is the primary advantage of scrollytelling in digital periodicals?",
+                options: [
+                    "Reduces image file size",
+                    "Eliminates copyediting needs",
+                    "Blends narrative prose with interactive visuals on scroll",
+                    "Replaces ads with pop-ups"
+                ],
+                correct: 2
+            },
+            {
+                category: "Standards",
+                question: "What does the open e-book standard EPUB stand for?",
+                options: [
+                    "Editable Publication",
+                    "Electronic Publication",
+                    "Extended Page Universal Binding",
+                    "Editorial Print Buffer"
+                ],
+                correct: 1
+            },
+            {
+                category: "Typography",
+                question: "Why pair serif headings with sans-serif body text in digital publishing?",
+                options: [
+                    "Replicates 19th-century broadsheets",
+                    "Establishes visual hierarchy and reduces eye strain",
+                    "Required by screen readers",
+                    "Avoids font copyright licensing"
+                ],
+                correct: 1
+            },
+            {
+                category: "Interactivity",
+                question: "Which feature distinguishes native digital magazines from PDF replicas?",
+                options: [
+                    "Embedded hyperlinks and interactive widgets",
+                    "Higher shipping costs",
+                    "Absence of images",
+                    "Locked portrait orientation"
+                ],
+                correct: 0
+            },
+            {
+                category: "Media Ethics",
+                question: "Which legal principle allows quoting excerpts for educational review without permission?",
+                options: [
+                    "Public Domain dedication",
+                    "Creative Commons Zero",
+                    "Fair Use / Fair Dealing",
+                    "Open Source Licensing"
+                ],
+                correct: 2
+            },
+            {
+                category: "Monetization",
+                question: "Which revenue model balances recurring income with gated premium content?",
+                options: [
+                    "Banner advertising exclusively",
+                    "Tiered subscription paywall model",
+                    "One-time life purchase",
+                    "Government subsidies"
+                ],
+                correct: 1
+            },
+            {
+                category: "Workflow",
+                question: "What is the primary role of a Content Management System (CMS)?",
+                options: [
+                    "Physical printing at high speeds",
+                    "Streamlining collaborative drafting, review, and web publishing",
+                    "Encrypting credit cards",
+                    "Generating legal disclaimers"
+                ],
+                correct: 1
+            },
+            {
+                category: "Accessibility",
+                question: "Why is adding descriptive 'alt text' to digital magazine images essential?",
+                options: [
+                    "Speeds up mobile downloads",
+                    "Allows screen-reader users to understand visuals",
+                    "Prevents search engine indexing",
+                    "Mandated for print typography"
+                ],
+                correct: 1
+            },
+            {
+                category: "Future Trends",
+                question: "How is Artificial Intelligence (AI) influencing modern digital magazines?",
+                options: [
+                    "Replacing all human journalists",
+                    "Assisting with transcription, recommendations, and layout generation",
+                    "Eliminating security risks",
+                    "Converting articles to printing presses"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = {};
+
+        function startQuiz() {
+            document.getElementById('view-welcome').classList.add('hidden');
+            document.getElementById('view-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById('current-q-num').innerText = currentQuestion + 1;
+            document.getElementById('question-category').innerText = q.category;
+            document.getElementById('question-text').innerText = q.question;
+
+            // Progress bar
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            // Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = userAnswers[currentQuestion] === idx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 border transition duration-150 text-xs sm:text-sm flex items-center gap-2.5 ${
+                    isSelected 
+                        ? 'border-mag-dark bg-mag-dark text-white font-semibold' 
+                        : 'border-mag-border bg-white hover:bg-mag-light text-mag-dark'
+                }`;
+                btn.innerHTML = `
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-none text-[10px] font-bold border ${isSelected ? 'border-white text-white' : 'border-mag-dark text-mag-dark'} flex-shrink-0">
+                        ${String.fromCharCode(65 + idx)}
+                    </span>
+                    <span>${opt}</span>
+                `;
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+
+            // Buttons
+            document.getElementById('btn-prev').disabled = currentQuestion === 0;
+            const nextBtn = document.getElementById('btn-next');
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.innerText = 'Submit Quiz 🎯';
+                nextBtn.onclick = submitQuiz;
+            } else {
+                nextBtn.innerText = 'Next →';
+                nextBtn.onclick = nextQuestion;
+            }
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) {
+                    score++;
+                }
+            });
+
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-result').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            let gradeText = "Grade: Needs Revision";
+            if (score === 10) gradeText = "Grade: Editorial Master (A+)";
+            else if (score >= 8) gradeText = "Grade: Distinction (A)";
+            else if (score >= 6) gradeText = "Grade: First Class (B)";
+
+            document.getElementById('score-grade').innerText = gradeText;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = {};
+            document.getElementById('view-result').classList.add('hidden');
+            document.getElementById('view-welcome').classList.remove('hidden');
+        }
+
+        function shareQuiz() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Digital Magazines Quiz',
+                    text: 'Take this Class 12 CBSE English Project quiz on Digital Magazines!',
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Quiz link copied to clipboard!');
+            }
+        }
+    </script>
+</body>
+</html>
